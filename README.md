@@ -37,6 +37,9 @@
             self?.number = 10
             self?.networking()
         }
+        
+        /// 模拟向下拖动加载
+        tableView.imitateDragDownloading()
     }
     
     func networking() {
@@ -85,6 +88,9 @@
             self?.number = 10
             self?.networking()
         }
+        
+        /// 模拟向下拖动加载
+        collectionView.imitateDragDownloading()
     }
     
     func networking() {

@@ -846,7 +846,7 @@ public class DragLoadCollectionView: UICollectionView {
         
         if isVerticalScroll {
             
-            setContentOffset(CGPoint.init(x: -1.2*dragDownOffset.y, y: 0), animated: true)
+            setContentOffset(CGPoint.init(x: 0, y: -1.2*dragDownOffset.y), animated: true)
         }
         else {
             

@@ -43,6 +43,8 @@ class DragLoadTableViewController: UIViewController, UITableViewDelegate, UITabl
             self?.number = 10
             self?.networking()
         }
+        
+        tableView.imitateDragDownloading()
     }
     
     func networking() {
@@ -94,6 +96,8 @@ class DragLoadCollectionViewController: UIViewController, UICollectionViewDelega
             self?.number = 10
             self?.networking()
         }
+        
+        collectionView.imitateDragDownloading()
     }
     
     func networking() {
