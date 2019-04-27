@@ -1,8 +1,9 @@
 # DragLoad
-`Swift``iOS``UITableView``UICollectionView``DragLoad`
 
-* `UITableView`拖动加载/拖动更新
-* `UICollectionView`拖动加载/拖动更新
+`Swift` `iOS` `UITableView` `UICollectionView` `DragLoad`
+
+* `UITableView` 拖动加载/拖动更新
+* `UICollectionView` 拖动加载/拖动更新
 
 ## Usage
 
