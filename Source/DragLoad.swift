@@ -334,7 +334,7 @@ public class DragLoadTableView: UITableView {
     /**
      开始向上拖动加载
      */
-    func startDragUpLoading() {
+    public func startDragUpLoading() {
         
         if dragUpView?.dragLoadStatus == .dragging && dragDownView?.dragLoadStatus != .loading && dragDownView?.dragLoadStatus != .loadEnd && isDragUp == true {
             
@@ -362,7 +362,7 @@ public class DragLoadTableView: UITableView {
     /**
      开始向下拖动加载
      */
-    func startDragDownLoading() {
+    public func startDragDownLoading() {
         
         if dragUpView?.dragLoadStatus != .loading && dragUpView?.dragLoadStatus != .loadEnd && dragDownView?.dragLoadStatus == .dragging && isDragDown == true {
             
@@ -385,7 +385,7 @@ public class DragLoadTableView: UITableView {
     /**
      结束向上拖动加载
      */
-    func endDragUpLoading() {
+    public func endDragUpLoading() {
         
         dragUpView?.dragLoadStatus = .loadEnd
         
@@ -405,7 +405,7 @@ public class DragLoadTableView: UITableView {
     /**
      结束向下拖动加载
      */
-    func endDragDownLoading() {
+    public func endDragDownLoading() {
         
         dragDownView?.dragLoadStatus = .loadEnd
         
@@ -710,7 +710,7 @@ public class DragLoadCollectionView: UICollectionView {
     /**
      开始向上拖动加载
      */
-    func startDragUpLoading() {
+    public func startDragUpLoading() {
         
         if dragUpView?.dragLoadStatus == .dragging && dragDownView?.dragLoadStatus != .loading && dragDownView?.dragLoadStatus != .loadEnd && isDragUp == true {
             
@@ -752,7 +752,7 @@ public class DragLoadCollectionView: UICollectionView {
     /**
      开始向下拖动加载
      */
-    func startDragDownLoading() {
+    public func startDragDownLoading() {
         
         if dragUpView?.dragLoadStatus != .loading && dragUpView?.dragLoadStatus != .loadEnd && dragDownView?.dragLoadStatus == .dragging && isDragDown == true {
             
@@ -783,7 +783,7 @@ public class DragLoadCollectionView: UICollectionView {
     /**
      结束向上拖动加载
      */
-    func endDragUpLoading() {
+    public func endDragUpLoading() {
         
         dragUpView?.dragLoadStatus = .loadEnd
         
@@ -803,7 +803,7 @@ public class DragLoadCollectionView: UICollectionView {
     /**
      结束向下拖动加载
      */
-    func endDragDownLoading() {
+    public func endDragDownLoading() {
         
         dragDownView?.dragLoadStatus = .loadEnd
         
