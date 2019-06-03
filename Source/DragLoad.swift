@@ -63,17 +63,17 @@ public protocol DragLoadProtocol: UIView {
 /**
  拖动加载视图
  */
-public class DragLoadView: UIView, DragLoadProtocol {
+open class DragLoadView: UIView, DragLoadProtocol {
     
     /// 指示器
-    public var activity: UIActivityIndicatorView = UIActivityIndicatorView.init(style: .gray)
+    open var activity: UIActivityIndicatorView = UIActivityIndicatorView.init(style: .gray)
     /// 提示内容
-    public var title: UILabel = UILabel.init()
+    open var title: UILabel = UILabel.init()
     
     /// 提示内容
-    public var normalTitle = "拖动可加载"
-    public var draggingTitle = "松开立即加载"
-    public var loadEndTitle = "加载完成"
+    open var normalTitle = "拖动可加载"
+    open var draggingTitle = "松开立即加载"
+    open var loadEndTitle = "加载完成"
     
     // MARK: - init
     
@@ -94,7 +94,7 @@ public class DragLoadView: UIView, DragLoadProtocol {
     /**
      初始化
      */
-    public func initial() {
+    open func initial() {
         
         backgroundColor = UIColor.clear
         
@@ -107,7 +107,7 @@ public class DragLoadView: UIView, DragLoadProtocol {
         addSubview(activity)
     }
     
-    public override var frame: CGRect {
+    open override var frame: CGRect {
         
         didSet {
             
@@ -130,7 +130,7 @@ public class DragLoadView: UIView, DragLoadProtocol {
     
     // MARK: - LoadingProtocol
     
-    public var dragLoadStatus: DragLoadStatus = .normal {
+    open var dragLoadStatus: DragLoadStatus = .normal {
         
         didSet {
             
@@ -141,14 +141,14 @@ public class DragLoadView: UIView, DragLoadProtocol {
         }
     }
     
-    public var dragLoadDirection: DragLoadDirection = .up {
+    open var dragLoadDirection: DragLoadDirection = .up {
         
         didSet {
             
         }
     }
     
-    public func dragLoadStatusChange() {
+    open func dragLoadStatusChange() {
         
         switch dragLoadStatus {
         case .normal:
@@ -171,7 +171,7 @@ public class DragLoadView: UIView, DragLoadProtocol {
         }
     }
     
-    public func dragload(_ offset: CGPoint, contentSize: CGSize, frameSize: CGRect) {
+    open func dragload(_ offset: CGPoint, contentSize: CGSize, frameSize: CGRect) {
         
     }
 }
@@ -179,12 +179,12 @@ public class DragLoadView: UIView, DragLoadProtocol {
 /**
  拖动加载列表
  */
-public class DragLoadTableView: UITableView {
+open class DragLoadTableView: UITableView {
     
     // MARK: - Parameter
     
     /// 是否可向上拖动
-    public var isDragUp: Bool = false {
+    open var isDragUp: Bool = false {
         
         didSet {
             
@@ -193,7 +193,7 @@ public class DragLoadTableView: UITableView {
     }
     
     /// 是否可向下拖动
-    public var isDragDown: Bool = false {
+    open var isDragDown: Bool = false {
         
         didSet {
             
@@ -202,22 +202,22 @@ public class DragLoadTableView: UITableView {
     }
     
     /// 向上拖动加载响应
-    public var dragUpLoading: ()->Void = { }
+    open var dragUpLoading: ()->Void = { }
     
     /// 向下拖动加载响应
-    public var dragDownLoading: ()->Void = { }
+    open var dragDownLoading: ()->Void = { }
     
     /// 向上拖动加载偏移值
-    public var dragUpOffsetY: CGFloat = 60
+    open var dragUpOffsetY: CGFloat = 60
     /// 向下拖动加载偏移值
-    public var dragDownOffsetY: CGFloat = 60
+    open var dragDownOffsetY: CGFloat = 60
     /// 向上拖动偏移动画时间
-    public var dragUpAnimationDuration: TimeInterval = 0.25
+    open var dragUpAnimationDuration: TimeInterval = 0.25
     /// 向下拖动偏移动画时间
-    public var dragDownAnimationDuration: TimeInterval = 0.25
+    open var dragDownAnimationDuration: TimeInterval = 0.25
     
     /// 向上拖动底部视图
-    public var dragUpView: DragLoadProtocol? {
+    open var dragUpView: DragLoadProtocol? {
         
         willSet {
             
@@ -239,7 +239,7 @@ public class DragLoadTableView: UITableView {
     }
     
     /// 向下拖动顶部视图
-    public var dragDownView: DragLoadProtocol? {
+    open var dragDownView: DragLoadProtocol? {
         
         willSet {
             
@@ -260,7 +260,7 @@ public class DragLoadTableView: UITableView {
         }
     }
     
-    public override var frame: CGRect {
+    open override var frame: CGRect {
         
         didSet {
             
@@ -270,7 +270,7 @@ public class DragLoadTableView: UITableView {
     }
     
     /// 监听 contentSize
-    public override var contentSize: CGSize {
+    open override var contentSize: CGSize {
         
         didSet {
             
@@ -284,7 +284,7 @@ public class DragLoadTableView: UITableView {
     }
     
     /// 监听 contentOffset
-    public override var contentOffset: CGPoint {
+    open override var contentOffset: CGPoint {
         
         didSet {
             
@@ -334,7 +334,7 @@ public class DragLoadTableView: UITableView {
     /**
      开始向上拖动加载
      */
-    public func startDragUpLoading() {
+    open func startDragUpLoading() {
         
         if dragUpView?.dragLoadStatus == .dragging && dragDownView?.dragLoadStatus != .loading && dragDownView?.dragLoadStatus != .loadEnd && isDragUp == true {
             
@@ -362,7 +362,7 @@ public class DragLoadTableView: UITableView {
     /**
      开始向下拖动加载
      */
-    public func startDragDownLoading() {
+    open func startDragDownLoading() {
         
         if dragUpView?.dragLoadStatus != .loading && dragUpView?.dragLoadStatus != .loadEnd && dragDownView?.dragLoadStatus == .dragging && isDragDown == true {
             
@@ -385,7 +385,7 @@ public class DragLoadTableView: UITableView {
     /**
      结束向上拖动加载
      */
-    public func endDragUpLoading() {
+    open func endDragUpLoading() {
         
         dragUpView?.dragLoadStatus = .loadEnd
         
@@ -405,7 +405,7 @@ public class DragLoadTableView: UITableView {
     /**
      结束向下拖动加载
      */
-    public func endDragDownLoading() {
+    open func endDragDownLoading() {
         
         dragDownView?.dragLoadStatus = .loadEnd
         
@@ -424,7 +424,7 @@ public class DragLoadTableView: UITableView {
     /**
      模拟向上拖动加载
      */
-    public func imitateDragUploading() {
+    open func imitateDragUploading() {
         
         setContentOffset(CGPoint.init(x: 0, y: max(contentSize.height, frame.size.height) - frame.size.height + 1.2*dragUpOffsetY), animated: true)
         
@@ -437,7 +437,7 @@ public class DragLoadTableView: UITableView {
     /**
      模拟向下拖动加载
      */
-    public func imitateDragDownloading() {
+    open func imitateDragDownloading() {
         
         setContentOffset(CGPoint.init(x: 0, y: -1.2*dragDownOffsetY), animated: true)
         
@@ -451,12 +451,12 @@ public class DragLoadTableView: UITableView {
 /**
  拖动加载集合
  */
-public class DragLoadCollectionView: UICollectionView {
+open class DragLoadCollectionView: UICollectionView {
     
     // MARK: - Parameter
     
     /// 是否是竖向滑动
-    public var isVerticalScroll: Bool = true {
+    open var isVerticalScroll: Bool = true {
         
         didSet {
             
@@ -469,7 +469,7 @@ public class DragLoadCollectionView: UICollectionView {
     }
     
     /// 是否可向上拖动
-    public var isDragUp: Bool = false {
+    open var isDragUp: Bool = false {
         
         didSet {
             
@@ -478,7 +478,7 @@ public class DragLoadCollectionView: UICollectionView {
     }
     
     /// 是否可向下拖动
-    public var isDragDown: Bool = false {
+    open var isDragDown: Bool = false {
         
         didSet {
             
@@ -487,22 +487,22 @@ public class DragLoadCollectionView: UICollectionView {
     }
     
     /// 向上拖动加载响应
-    public var dragUpLoading: ()->Void = { }
+    open var dragUpLoading: ()->Void = { }
     
     /// 向下拖动加载响应
-    public var dragDownLoading: ()->Void = { }
+    open var dragDownLoading: ()->Void = { }
     
     /// 向上拖动加载偏移值
-    public var dragUpOffset: CGPoint = CGPoint.init(x: 60, y: 60)
+    open var dragUpOffset: CGPoint = CGPoint.init(x: 60, y: 60)
     /// 向下拖动加载偏移值
-    public var dragDownOffset: CGPoint = CGPoint.init(x: 60, y: 60)
+    open var dragDownOffset: CGPoint = CGPoint.init(x: 60, y: 60)
     /// 向上拖动偏移动画时间
-    public var dragUpAnimationDuration: TimeInterval = 0.25
+    open var dragUpAnimationDuration: TimeInterval = 0.25
     /// 向下拖动偏移动画时间
-    public var dragDownAnimationDuration: TimeInterval = 0.25
+    open var dragDownAnimationDuration: TimeInterval = 0.25
     
     /// 向上拖动底部视图
-    public var dragUpView: DragLoadProtocol? {
+    open var dragUpView: DragLoadProtocol? {
         
         willSet {
             
@@ -533,7 +533,7 @@ public class DragLoadCollectionView: UICollectionView {
     }
     
     /// 向下拖动顶部视图
-    public var dragDownView: DragLoadProtocol? {
+    open var dragDownView: DragLoadProtocol? {
         
         willSet {
             
@@ -563,7 +563,7 @@ public class DragLoadCollectionView: UICollectionView {
         }
     }
     
-    public override var frame: CGRect {
+    open override var frame: CGRect {
         
         didSet {
             
@@ -585,7 +585,7 @@ public class DragLoadCollectionView: UICollectionView {
     }
     
     /// 监听 contentSize
-    public override var contentSize: CGSize {
+    open override var contentSize: CGSize {
         
         didSet {
             
@@ -629,7 +629,7 @@ public class DragLoadCollectionView: UICollectionView {
     }
     
     /// 监听 contentOffset
-    public override var contentOffset: CGPoint {
+    open override var contentOffset: CGPoint {
         
         didSet {
             
@@ -710,7 +710,7 @@ public class DragLoadCollectionView: UICollectionView {
     /**
      开始向上拖动加载
      */
-    public func startDragUpLoading() {
+    open func startDragUpLoading() {
         
         if dragUpView?.dragLoadStatus == .dragging && dragDownView?.dragLoadStatus != .loading && dragDownView?.dragLoadStatus != .loadEnd && isDragUp == true {
             
@@ -752,7 +752,7 @@ public class DragLoadCollectionView: UICollectionView {
     /**
      开始向下拖动加载
      */
-    public func startDragDownLoading() {
+    open func startDragDownLoading() {
         
         if dragUpView?.dragLoadStatus != .loading && dragUpView?.dragLoadStatus != .loadEnd && dragDownView?.dragLoadStatus == .dragging && isDragDown == true {
             
@@ -783,7 +783,7 @@ public class DragLoadCollectionView: UICollectionView {
     /**
      结束向上拖动加载
      */
-    public func endDragUpLoading() {
+    open func endDragUpLoading() {
         
         dragUpView?.dragLoadStatus = .loadEnd
         
@@ -803,7 +803,7 @@ public class DragLoadCollectionView: UICollectionView {
     /**
      结束向下拖动加载
      */
-    public func endDragDownLoading() {
+    open func endDragDownLoading() {
         
         dragDownView?.dragLoadStatus = .loadEnd
         
@@ -822,7 +822,7 @@ public class DragLoadCollectionView: UICollectionView {
     /**
      模拟向上拖动加载
      */
-    public func imitateDragUploading() {
+    open func imitateDragUploading() {
         
         if isVerticalScroll {
             
@@ -842,7 +842,7 @@ public class DragLoadCollectionView: UICollectionView {
     /**
      模拟向下拖动加载
      */
-    public func imitateDragDownloading() {
+    open func imitateDragDownloading() {
         
         if isVerticalScroll {
             
