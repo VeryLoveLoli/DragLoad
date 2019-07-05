@@ -329,6 +329,15 @@ open class DragLoadTableView: UITableView {
         }
     }
     
+    // MARK: - Layout
+    
+    open override func layoutSublayers(of layer: CALayer) {
+        super.layoutSublayers(of: layer)
+        
+        dragUpView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: max(contentSize.height, frame.size.height)), size: frame.size)
+        dragDownView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: -frame.size.height), size: frame.size)
+    }
+    
     // MARK: - Loading
     
     /**
@@ -702,6 +711,27 @@ open class DragLoadCollectionView: UICollectionView {
                     startDragDownLoading()
                 }
             }
+        }
+    }
+    
+    // MARK: - Layout
+    
+    open override func layoutSublayers(of layer: CALayer) {
+        super.layoutSublayers(of: layer)
+        
+        if isVerticalScroll {
+            
+            dragUpView?.dragLoadDirection = .up
+            dragDownView?.dragLoadDirection = .down
+            dragUpView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: max(contentSize.height, frame.size.height)), size: frame.size)
+            dragDownView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: -frame.size.height), size: frame.size)
+        }
+        else {
+            
+            dragUpView?.dragLoadDirection = .left
+            dragDownView?.dragLoadDirection = .righe
+            dragUpView?.frame = CGRect.init(origin: CGPoint.init(x: max(contentSize.width, frame.size.width), y: 0), size: frame.size)
+            dragDownView?.frame = CGRect.init(origin: CGPoint.init(x: -frame.size.width, y: 0), size: frame.size)
         }
     }
     
