@@ -36,7 +36,7 @@ public enum DragLoadDirection {
     /// 左
     case left
     /// 右
-    case righe
+    case right
 }
 
 /**
@@ -121,7 +121,7 @@ open class DragLoadView: UIView, DragLoadProtocol {
             case .left:
                 title.frame = CGRect.init(x: 20, y: 0, width: 20, height: frame.size.height)
                 activity.frame = CGRect.init(x: 20, y: (frame.size.height-20)/2, width: 20, height: 20)
-            case .righe:
+            case .right:
                 title.frame = CGRect.init(x: frame.size.width - 20 - 20, y: 0, width: 20, height: frame.size.height)
                 activity.frame = CGRect.init(x: frame.size.width - 20 - 20, y: (frame.size.height-20)/2, width: 20, height: 20)
             }
@@ -559,7 +559,7 @@ open class DragLoadCollectionView: UICollectionView {
             }
             else {
                 
-                dragDownView?.dragLoadDirection = .righe
+                dragDownView?.dragLoadDirection = .right
                 dragDownView?.frame = CGRect.init(origin: CGPoint.init(x: -frame.size.width, y: 0), size: frame.size)
             }
             
@@ -586,7 +586,7 @@ open class DragLoadCollectionView: UICollectionView {
             else {
                 
                 dragUpView?.dragLoadDirection = .left
-                dragDownView?.dragLoadDirection = .righe
+                dragDownView?.dragLoadDirection = .right
                 dragUpView?.frame = CGRect.init(origin: CGPoint.init(x: max(contentSize.width, frame.size.width), y: 0), size: frame.size)
                 dragDownView?.frame = CGRect.init(origin: CGPoint.init(x: -frame.size.width, y: 0), size: frame.size)
             }
@@ -729,7 +729,7 @@ open class DragLoadCollectionView: UICollectionView {
         else {
             
             dragUpView?.dragLoadDirection = .left
-            dragDownView?.dragLoadDirection = .righe
+            dragDownView?.dragLoadDirection = .right
             dragUpView?.frame = CGRect.init(origin: CGPoint.init(x: max(contentSize.width, frame.size.width), y: 0), size: frame.size)
             dragDownView?.frame = CGRect.init(origin: CGPoint.init(x: -frame.size.width, y: 0), size: frame.size)
         }

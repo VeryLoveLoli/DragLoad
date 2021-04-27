@@ -5,6 +5,15 @@
 * `UITableView` 拖动加载/拖动更新
 * `UICollectionView` 拖动加载/拖动更新
 
+## Integration
+
+### Xcode
+    File -> Swift Packages -> Add Package dependency
+
+### CocoaPods
+
+[GitHub DragLoad](https://github.com/VeryLoveLoli/DragLoad)
+
 ## Usage
 
 ### Initialization
