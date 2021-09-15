@@ -55,9 +55,14 @@ public protocol DragLoadProtocol: UIView {
     func dragLoadStatusChange()
     
     /**
-     拖动加载 偏移量变化、内容大小、视图位置大小
+     拖动加载 偏移量变化、视图位置大小
      */
-    func dragload(_ offset: CGPoint, contentSize: CGSize, frameSize: CGRect)
+    func dragload(_ offset: CGPoint, frameSize: CGRect)
+    
+    /**
+     拖动加载 内容大小、视图位置大小
+     */
+    func dragload(_ contentSize: CGSize, frameSize: CGRect)
 }
 
 /**
@@ -75,20 +80,25 @@ open class DragLoadView: UIView, DragLoadProtocol {
     open var draggingTitle = "松开立即加载"
     open var loadEndTitle = "加载完成"
     
+    /// 约束列表
+    open var layoutConstraints: [NSLayoutConstraint] = []
+    /// 顶部/左边约束（用于`.up`、`.left`方向拖动）
+    open var layoutConstraintTL: NSLayoutConstraint?
+    
     // MARK: - init
     
     public override init(frame: CGRect) {
         
         super.init(frame: frame)
         
-        self.initial()
+        initial()
     }
     
     public required init?(coder aDecoder: NSCoder) {
         
         super.init(coder: aDecoder)
         
-        self.initial()
+        initial()
     }
     
     /**
@@ -105,27 +115,12 @@ open class DragLoadView: UIView, DragLoadProtocol {
         activity.color = UIColor.lightGray
         addSubview(title)
         addSubview(activity)
-    }
-    
-    open override var frame: CGRect {
         
-        didSet {
-            
-            switch dragLoadDirection {
-            case .up:
-                title.frame = CGRect.init(x: 0, y: 20, width: frame.size.width, height: 20)
-                activity.frame = CGRect.init(x: (frame.size.width-20)/2, y: 20, width: 20, height: 20)
-            case .down:
-                title.frame = CGRect.init(x: 0, y: frame.size.height - 20 - 20, width: frame.size.width, height: 20)
-                activity.frame = CGRect.init(x: (frame.size.width-20)/2, y: frame.size.height - 20 - 20, width: 20, height: 20)
-            case .left:
-                title.frame = CGRect.init(x: 20, y: 0, width: 20, height: frame.size.height)
-                activity.frame = CGRect.init(x: 20, y: (frame.size.height-20)/2, width: 20, height: 20)
-            case .right:
-                title.frame = CGRect.init(x: frame.size.width - 20 - 20, y: 0, width: 20, height: frame.size.height)
-                activity.frame = CGRect.init(x: frame.size.width - 20 - 20, y: (frame.size.height-20)/2, width: 20, height: 20)
-            }
-        }
+        translatesAutoresizingMaskIntoConstraints = false
+        title.translatesAutoresizingMaskIntoConstraints = false
+        activity.translatesAutoresizingMaskIntoConstraints = false
+        
+        dragLoadStatusChange()
     }
     
     // MARK: - LoadingProtocol
@@ -145,6 +140,104 @@ open class DragLoadView: UIView, DragLoadProtocol {
         
         didSet {
             
+            
+            NSLayoutConstraint.deactivate(layoutConstraints)
+            layoutConstraints = []
+            layoutConstraintTL = nil
+            
+            switch dragLoadDirection {
+            case .up:
+                
+                layoutConstraints += [NSLayoutConstraint(item: title, attribute: .left, relatedBy: .equal, toItem: self, attribute: .left, multiplier: 1, constant: 12),
+                                      NSLayoutConstraint(item: title, attribute: .right, relatedBy: .equal, toItem: self, attribute: .right, multiplier: 1, constant: -12),
+                                      NSLayoutConstraint(item: title, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1, constant: 20),
+                                      NSLayoutConstraint(item: title, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 20)]
+                
+                
+                layoutConstraints += [NSLayoutConstraint(item: activity, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1, constant: 20),
+                                      NSLayoutConstraint(item: activity, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 20),
+                                      NSLayoutConstraint(item: activity, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 20),
+                                      NSLayoutConstraint(item: activity, attribute: .centerX, relatedBy: .equal, toItem: self, attribute: .centerX, multiplier: 1, constant: 0)]
+                
+                
+                if let sup = superview as? UIScrollView {
+                    
+                    let top = NSLayoutConstraint(item: self, attribute: .top, relatedBy: .equal, toItem: sup, attribute: .top, multiplier: 1, constant: max(sup.contentSize.height, sup.frame.height))
+                    
+                    layoutConstraintTL = top
+                    layoutConstraints.append(top)
+                    
+                    layoutConstraints += [NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: sup, attribute: .centerX, multiplier: 1, constant: 0),
+                                          NSLayoutConstraint(item: self, attribute: .width, relatedBy: .equal, toItem: sup, attribute: .width, multiplier: 1, constant: 0),
+                                          NSLayoutConstraint(item: self, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: UIScreen.main.bounds.height)]
+                }
+                
+            case .down:
+                
+                layoutConstraints += [NSLayoutConstraint(item: title, attribute: .left, relatedBy: .equal, toItem: self, attribute: .left, multiplier: 1, constant: 12),
+                                      NSLayoutConstraint(item: title, attribute: .right, relatedBy: .equal, toItem: self, attribute: .right, multiplier: 1, constant: -12),
+                                      NSLayoutConstraint(item: title, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1, constant: -20),
+                                      NSLayoutConstraint(item: title, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 20)]
+                
+                layoutConstraints += [NSLayoutConstraint(item: activity, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1, constant: -20),
+                                      NSLayoutConstraint(item: activity, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 20),
+                                      NSLayoutConstraint(item: activity, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 20),
+                                      NSLayoutConstraint(item: activity, attribute: .centerX, relatedBy: .equal, toItem: self, attribute: .centerX, multiplier: 1, constant: 0)]
+                
+                if let sup = superview as? UIScrollView {
+                    
+                    layoutConstraints += [NSLayoutConstraint(item: self, attribute: .bottom, relatedBy: .equal, toItem: sup, attribute: .top, multiplier: 1, constant: 0),
+                                          NSLayoutConstraint(item: self, attribute: .centerX, relatedBy: .equal, toItem: sup, attribute: .centerX, multiplier: 1, constant: 0),
+                                          NSLayoutConstraint(item: self, attribute: .width, relatedBy: .equal, toItem: sup, attribute: .width, multiplier: 1, constant: 0),
+                                          NSLayoutConstraint(item: self, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: UIScreen.main.bounds.height)]
+                }
+                
+            case .left:
+                
+                layoutConstraints += [NSLayoutConstraint(item: title, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1, constant: 12),
+                                      NSLayoutConstraint(item: title, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1, constant: -12),
+                                      NSLayoutConstraint(item: title, attribute: .left, relatedBy: .equal, toItem: self, attribute: .left, multiplier: 1, constant: 20),
+                                      NSLayoutConstraint(item: title, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 20)]
+                
+                layoutConstraints += [NSLayoutConstraint(item: activity, attribute: .left, relatedBy: .equal, toItem: self, attribute: .left, multiplier: 1, constant: 20),
+                                      NSLayoutConstraint(item: activity, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 20),
+                                      NSLayoutConstraint(item: activity, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 20),
+                                      NSLayoutConstraint(item: activity, attribute: .centerY, relatedBy: .equal, toItem: self, attribute: .centerY, multiplier: 1, constant: 0)]
+                
+                if let sup = superview as? UIScrollView {
+                    
+                    let left = NSLayoutConstraint(item: self, attribute: .left, relatedBy: .equal, toItem: sup, attribute: .right, multiplier: 1, constant: max(sup.contentSize.width, sup.frame.width))
+                    
+                    layoutConstraints.append(left)
+                    layoutConstraintTL = left
+                    
+                    layoutConstraints += [NSLayoutConstraint(item: self, attribute: .centerY, relatedBy: .equal, toItem: self, attribute: .centerY, multiplier: 1, constant: 0),
+                                          NSLayoutConstraint(item: self, attribute: .height, relatedBy: .equal, toItem: sup, attribute: .height, multiplier: 1, constant: 0),
+                                          NSLayoutConstraint(item: self, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: UIScreen.main.bounds.width)]
+                }
+                
+            case .right:
+                
+                layoutConstraints += [NSLayoutConstraint(item: title, attribute: .top, relatedBy: .equal, toItem: self, attribute: .top, multiplier: 1, constant: 12),
+                                      NSLayoutConstraint(item: title, attribute: .bottom, relatedBy: .equal, toItem: self, attribute: .bottom, multiplier: 1, constant: -12),
+                                      NSLayoutConstraint(item: title, attribute: .right, relatedBy: .equal, toItem: self, attribute: .right, multiplier: 1, constant: -20),
+                                      NSLayoutConstraint(item: title, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 20)]
+                
+                layoutConstraints += [NSLayoutConstraint(item: activity, attribute: .right, relatedBy: .equal, toItem: self, attribute: .right, multiplier: 1, constant: -20),
+                                      NSLayoutConstraint(item: activity, attribute: .height, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 20),
+                                      NSLayoutConstraint(item: activity, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: 20),
+                                      NSLayoutConstraint(item: activity, attribute: .centerY, relatedBy: .equal, toItem: self, attribute: .centerY, multiplier: 1, constant: 0)]
+                
+                if let sup = superview as? UIScrollView {
+                    
+                    layoutConstraints += [NSLayoutConstraint(item: self, attribute: .right, relatedBy: .equal, toItem: sup, attribute: .right, multiplier: 1, constant: 0),
+                                          NSLayoutConstraint(item: self, attribute: .centerY, relatedBy: .equal, toItem: self, attribute: .centerY, multiplier: 1, constant: 0),
+                                          NSLayoutConstraint(item: self, attribute: .height, relatedBy: .equal, toItem: sup, attribute: .height, multiplier: 1, constant: 0),
+                                          NSLayoutConstraint(item: self, attribute: .width, relatedBy: .equal, toItem: nil, attribute: .notAnAttribute, multiplier: 1, constant: UIScreen.main.bounds.width)]
+                }
+            }
+            
+            NSLayoutConstraint.activate(layoutConstraints)
         }
     }
     
@@ -171,8 +264,20 @@ open class DragLoadView: UIView, DragLoadProtocol {
         }
     }
     
-    open func dragload(_ offset: CGPoint, contentSize: CGSize, frameSize: CGRect) {
+    open func dragload(_ offset: CGPoint, frameSize: CGRect) {
         
+    }
+    
+    open func dragload(_ contentSize: CGSize, frameSize: CGRect) {
+        
+        switch dragLoadDirection {
+        case .up:
+            layoutConstraintTL?.constant = max(contentSize.height, frameSize.height)
+        case .left:
+            layoutConstraintTL?.constant = max(contentSize.width, frameSize.width)
+        default:
+            break
+        }
     }
 }
 
@@ -227,14 +332,13 @@ open class DragLoadTableView: UITableView {
         
         didSet {
             
-            dragUpView?.dragLoadDirection = .up
-            dragUpView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: max(contentSize.height, frame.size.height)), size: frame.size)
-            dragUpView?.isHidden = !isDragUp
-            
             if let v = dragUpView {
                 
-                self.addSubview(v)
+                addSubview(v)
             }
+            
+            dragUpView?.dragLoadDirection = .up
+            dragUpView?.isHidden = !isDragUp
         }
     }
     
@@ -249,23 +353,13 @@ open class DragLoadTableView: UITableView {
         
         didSet {
             
-            dragDownView?.dragLoadDirection = .down
-            dragDownView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: -frame.size.height), size: frame.size)
-            dragDownView?.isHidden = !isDragDown
-            
             if let v = dragDownView {
                 
-                self.addSubview(v)
+                addSubview(v)
             }
-        }
-    }
-    
-    open override var frame: CGRect {
-        
-        didSet {
             
-            dragUpView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: max(contentSize.height, frame.size.height)), size: frame.size)
-            dragDownView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: -frame.size.height), size: frame.size)
+            dragDownView?.dragLoadDirection = .down
+            dragDownView?.isHidden = !isDragDown
         }
     }
     
@@ -274,12 +368,8 @@ open class DragLoadTableView: UITableView {
         
         didSet {
             
-            /// 设置 向上拖动底部视图 顶部高度
-            if var dragUpViewFrame = dragUpView?.frame  {
-                
-                dragUpViewFrame.origin.y = max(contentSize.height, frame.size.height)
-                dragUpView?.frame = dragUpViewFrame
-            }
+            dragUpView?.dragload(contentSize, frameSize: frame)
+            dragDownView?.dragload(contentOffset, frameSize: frame)
         }
     }
     
@@ -288,9 +378,9 @@ open class DragLoadTableView: UITableView {
         
         didSet {
             
-            dragUpView?.dragload(contentOffset, contentSize: contentSize, frameSize: frame)
-            dragDownView?.dragload(contentOffset, contentSize: contentSize, frameSize: frame)
-
+            dragUpView?.dragload(contentOffset, frameSize: frame)
+            dragDownView?.dragload(contentOffset, frameSize: frame)
+            
             if dragUpView?.dragLoadStatus != .loading && dragDownView?.dragLoadStatus != .loading
                 && dragUpView?.dragLoadStatus != .loadEnd && dragDownView?.dragLoadStatus != .loadEnd {
                 
@@ -329,15 +419,6 @@ open class DragLoadTableView: UITableView {
         }
     }
     
-    // MARK: - Layout
-    
-    open override func layoutSublayers(of layer: CALayer) {
-        super.layoutSublayers(of: layer)
-        
-        dragUpView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: max(contentSize.height, frame.size.height)), size: frame.size)
-        dragDownView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: -frame.size.height), size: frame.size)
-    }
-    
     // MARK: - Loading
     
     /**
@@ -350,16 +431,11 @@ open class DragLoadTableView: UITableView {
             dragUpView?.dragLoadStatus = .loading
             
             var inset = contentInset
-            inset.bottom = dragUpOffsetY
-            
-            var offsetY = min(frame.size.height - contentSize.height, inset.bottom)
-            offsetY = max(offsetY, 0)
-            let offsetFrame = CGRect.init(origin: CGPoint.init(x: 0, y: max(contentSize.height, frame.size.height) - offsetY), size: frame.size)
+            inset.bottom = max(dragUpOffsetY, frame.height - contentSize.height + dragUpOffsetY)
             
             UIView.animate(withDuration: dragUpAnimationDuration, animations: {
                 
                 self.contentInset = inset
-                self.dragUpView?.frame = offsetFrame
                 
             }, completion: { (bool) in
                 
@@ -398,12 +474,9 @@ open class DragLoadTableView: UITableView {
         
         dragUpView?.dragLoadStatus = .loadEnd
         
-        let offsetFrame = CGRect.init(origin: CGPoint.init(x: 0, y: max(contentSize.height, frame.size.height)), size: frame.size)
-        
         UIView.animate(withDuration: dragUpAnimationDuration, animations: {
             
             self.contentInset = UIEdgeInsets.zero
-            self.dragUpView?.frame = offsetFrame
             
         }, completion: { (bool) in
             
@@ -471,8 +544,30 @@ open class DragLoadCollectionView: UICollectionView {
             
             if oldValue != isVerticalScroll {
                 
-                let f = frame
-                frame = f
+                if isVerticalScroll {
+                    
+                    if dragUpView?.dragLoadDirection != .up {
+                        
+                        dragUpView?.dragLoadDirection = .up
+                    }
+                    
+                    if dragDownView?.dragLoadDirection != .down {
+                        
+                        dragDownView?.dragLoadDirection = .down
+                    }
+                }
+                else {
+                    
+                    if dragUpView?.dragLoadDirection != .left {
+                        
+                        dragUpView?.dragLoadDirection = .left
+                    }
+                    
+                    if dragDownView?.dragLoadDirection != .right {
+                        
+                        dragDownView?.dragLoadDirection = .right
+                    }
+                }
             }
         }
     }
@@ -521,22 +616,20 @@ open class DragLoadCollectionView: UICollectionView {
         
         didSet {
             
-            if isVerticalScroll {
-                
-                dragUpView?.dragLoadDirection = .up
-                dragUpView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: max(contentSize.height, frame.size.height)), size: frame.size)
-            }
-            else {
-                
-                dragUpView?.dragLoadDirection = .left
-                dragUpView?.frame = CGRect.init(origin: CGPoint.init(x: max(contentSize.width, frame.size.width), y: 0), size: frame.size)
-            }
-            
             dragUpView?.isHidden = !isDragUp
             
             if let v = dragUpView {
                 
                 self.addSubview(v)
+            }
+            
+            if isVerticalScroll {
+                
+                dragUpView?.dragLoadDirection = .up
+            }
+            else {
+                
+                dragUpView?.dragLoadDirection = .left
             }
         }
     }
@@ -552,43 +645,20 @@ open class DragLoadCollectionView: UICollectionView {
         
         didSet {
             
-            if isVerticalScroll {
-                
-                dragDownView?.dragLoadDirection = .down
-                dragDownView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: -frame.size.height), size: frame.size)
-            }
-            else {
-                
-                dragDownView?.dragLoadDirection = .right
-                dragDownView?.frame = CGRect.init(origin: CGPoint.init(x: -frame.size.width, y: 0), size: frame.size)
-            }
-            
             dragDownView?.isHidden = !isDragDown
             
             if let v = dragDownView {
                 
                 self.addSubview(v)
             }
-        }
-    }
-    
-    open override var frame: CGRect {
-        
-        didSet {
             
             if isVerticalScroll {
                 
-                dragUpView?.dragLoadDirection = .up
                 dragDownView?.dragLoadDirection = .down
-                dragUpView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: max(contentSize.height, frame.size.height)), size: frame.size)
-                dragDownView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: -frame.size.height), size: frame.size)
             }
             else {
                 
-                dragUpView?.dragLoadDirection = .left
                 dragDownView?.dragLoadDirection = .right
-                dragUpView?.frame = CGRect.init(origin: CGPoint.init(x: max(contentSize.width, frame.size.width), y: 0), size: frame.size)
-                dragDownView?.frame = CGRect.init(origin: CGPoint.init(x: -frame.size.width, y: 0), size: frame.size)
             }
         }
     }
@@ -598,42 +668,8 @@ open class DragLoadCollectionView: UICollectionView {
         
         didSet {
             
-            /// 设置 向上拖动底部视图 顶部高度
-            if var dragUpViewFrame = dragUpView?.frame  {
-                
-                if dragUpView?.dragLoadStatus == .loading {
-                    
-                    if isVerticalScroll {
-                        
-                        var offsetY = min(frame.size.height - contentSize.height, contentInset.bottom)
-                        offsetY = max(offsetY, 0)
-                        dragUpViewFrame.origin.x = 0
-                        dragUpViewFrame.origin.y = max(contentSize.height, frame.size.height) - offsetY
-                    }
-                    else {
-                        
-                        var offsetX = min(frame.size.width - contentSize.width, contentInset.right)
-                        offsetX = max(offsetX, 0)
-                        dragUpViewFrame.origin.x = max(contentSize.width, frame.size.width) - offsetX
-                        dragUpViewFrame.origin.y = 0
-                    }
-                }
-                else {
-                    
-                    if isVerticalScroll {
-                        
-                        dragUpViewFrame.origin.x = 0
-                        dragUpViewFrame.origin.y = max(contentSize.height, frame.size.height)
-                        dragUpView?.frame = dragUpViewFrame
-                    }
-                    else {
-                        
-                        dragUpViewFrame.origin.x = max(contentSize.width, frame.size.width)
-                        dragUpViewFrame.origin.y = 0
-                        dragUpView?.frame = dragUpViewFrame
-                    }
-                }
-            }
+            dragUpView?.dragload(contentSize, frameSize: frame)
+            dragDownView?.dragload(contentSize, frameSize: frame)
         }
     }
     
@@ -642,8 +678,8 @@ open class DragLoadCollectionView: UICollectionView {
         
         didSet {
             
-            dragUpView?.dragload(contentOffset, contentSize: contentSize, frameSize: frame)
-            dragDownView?.dragload(contentOffset, contentSize: contentSize, frameSize: frame)
+            dragUpView?.dragload(contentOffset, frameSize: frame)
+            dragDownView?.dragload(contentOffset, frameSize: frame)
             
             if dragUpView?.dragLoadStatus != .loading && dragDownView?.dragLoadStatus != .loading
                 && dragUpView?.dragLoadStatus != .loadEnd && dragDownView?.dragLoadStatus != .loadEnd {
@@ -714,27 +750,6 @@ open class DragLoadCollectionView: UICollectionView {
         }
     }
     
-    // MARK: - Layout
-    
-    open override func layoutSublayers(of layer: CALayer) {
-        super.layoutSublayers(of: layer)
-        
-        if isVerticalScroll {
-            
-            dragUpView?.dragLoadDirection = .up
-            dragDownView?.dragLoadDirection = .down
-            dragUpView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: max(contentSize.height, frame.size.height)), size: frame.size)
-            dragDownView?.frame = CGRect.init(origin: CGPoint.init(x: 0, y: -frame.size.height), size: frame.size)
-        }
-        else {
-            
-            dragUpView?.dragLoadDirection = .left
-            dragDownView?.dragLoadDirection = .right
-            dragUpView?.frame = CGRect.init(origin: CGPoint.init(x: max(contentSize.width, frame.size.width), y: 0), size: frame.size)
-            dragDownView?.frame = CGRect.init(origin: CGPoint.init(x: -frame.size.width, y: 0), size: frame.size)
-        }
-    }
-    
     // MARK: - Loading
     
     /**
@@ -748,29 +763,18 @@ open class DragLoadCollectionView: UICollectionView {
             
             var inset = contentInset
             
-            var offsetFrame = CGRect.init()
-            
             if isVerticalScroll {
                 
-                inset.bottom = dragUpOffset.y
-                
-                var offsetY = min(frame.size.height - contentSize.height, inset.bottom)
-                offsetY = max(offsetY, 0)
-                offsetFrame = CGRect.init(origin: CGPoint.init(x: 0, y: max(contentSize.height, frame.size.height) - offsetY), size: frame.size)
+                inset.bottom = max(dragUpOffset.y, frame.height - contentSize.height + dragUpOffset.y)
             }
             else {
                 
-                inset.right = dragUpOffset.x
-                
-                var offsetX = min(frame.size.width - contentSize.width, inset.right)
-                offsetX = max(offsetX, 0)
-                offsetFrame = CGRect.init(origin: CGPoint.init(x: max(contentSize.width, frame.size.width) - offsetX, y: 0), size: frame.size)
+                inset.right = max(dragUpOffset.x, frame.width - contentSize.width + dragUpOffset.x)
             }
             
             UIView.animate(withDuration: dragUpAnimationDuration, animations: {
                 
                 self.contentInset = inset
-                self.dragUpView?.frame = offsetFrame
                 
             }, completion: { (bool) in
                 
@@ -817,12 +821,9 @@ open class DragLoadCollectionView: UICollectionView {
         
         dragUpView?.dragLoadStatus = .loadEnd
         
-        let offsetFrame = CGRect.init(origin: CGPoint.init(x: 0, y: max(contentSize.height, frame.size.height)), size: frame.size)
-        
         UIView.animate(withDuration: dragUpAnimationDuration, animations: {
             
             self.contentInset = UIEdgeInsets.zero
-            self.dragUpView?.frame = offsetFrame
             
         }, completion: { (bool) in
             
