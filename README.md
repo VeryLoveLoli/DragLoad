@@ -1,9 +1,11 @@
 # DragLoad
 
-`Swift` `iOS` `UITableView` `UICollectionView` `DragLoad`
+`Swift` `iOS` `DragLoad` `UIScrollView` `UITableView` `UICollectionView`
 
-* `UITableView` 拖动加载/拖动更新
-* `UICollectionView` 拖动加载/拖动更新
+`UIScrollView` 滑动加载，支持上下左右滑动加载
+
+自定义`UIView`只需继承`DragLoadProtocol`协议，设置拖动方向，即可实现拖动加载。
+已实现简易的拖动加载视图`DragLoadView`、`DragLoadTitleView`
 
 ## Integration
 
@@ -19,99 +21,99 @@
 ### Initialization
 
 ```swift
-    @IBOutlet weak var tableView: DragLoadTableView!
-    /// 行数
-    var number = 0
+    
+    @IBOutlet weak var scrollView: UIScrollView?
+    
+    /// 顶部加载视图（创建加载视图并设置拖动方向和偏移值）
+    let topLoad = DragLoadTitleView(.down(60))
+    
+    /// 底部加载视图（创建加载视图并设置拖动方向和偏移值）
+    let bottomLoad = DragLoadTitleView(.up(60))
+    
+    /// 页码
+    var page = 0
+    /// 列表
+    var items: [Any] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        /// 开启拖到加载
-        tableView.isDragUp = true
-        tableView.isDragDown = true
+        /// 开始加载回调
+        topDragLoad.dragLoadCallback = { [weak self] in
+            
+            self?.page = 0
+            self?.network()
+        }
         
-        /// 设置加载视图
-        tableView.dragUpView = DragLoadView.init()
-        tableView.dragDownView = DragLoadView.init()
+        /// 加入到滑动视图
+        scrollView?.addSubview(topDragLoad)
         
         /// 开始加载回调
-        tableView.dragUpLoading = { [weak self] in
+        bottomDragLoad.dragLoadCallback = { [weak self] in
             
-            self?.number += 10
-            self?.networking()
+            self?.page += 1
+            self?.network()
         }
         
-        tableView.dragDownLoading = { [weak self] in
-            
-            self?.number = 10
-            self?.networking()
-        }
+        /// 加入到滑动视图
+        scrollView?.addSubview(bottomDragLoad)
         
-        /// 模拟向下拖动加载
-        tableView.imitateDragDownloading()
+        /// 是否可拖动加载
+        bottomDragLoad.isDragLoad = false
+        
+        network()
     }
     
-    func networking() {
+    /// 网络
+    func network() {
         
+        if page == 0 {
+            
+            /// 顶部在加载，关闭底部加载
+            bottomDragLoad.isDragLoad = false
+        }
+        else {
+            
+            /// 底部在加载，关闭顶部加载
+            topDragLoad.isDragLoad = false
+        }
+        
+        /// 延时模拟网络加载
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(3)) {
             
-            /// 停止加载
-            self.tableView.endDragUpLoading()
-            self.tableView.endDragDownLoading()
-            
-            /// 刷新列表
-            self.tableView.reloadData()
+            self.loadEnd()
         }
-    }
-```
-
-```swift
-    @IBOutlet weak var collectionView: DragLoadCollectionView!
-    /// 行数
-    var number = 0
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        /// 设置滑动方向
-        collectionView.isVerticalScroll = true
-        (collectionView.collectionViewLayout as? UICollectionViewFlowLayout)?.scrollDirection = collectionView.isVerticalScroll ? .vertical : .horizontal
-        
-        /// 开启拖到加载
-        collectionView.isDragUp = true
-        collectionView.isDragDown = true
-        
-        /// 设置加载视图
-        collectionView.dragUpView = DragLoadView.init()
-        collectionView.dragDownView = DragLoadView.init()
-        
-        /// 开始加载回调
-        collectionView.dragUpLoading = { [weak self] in
-            
-            self?.number += 10
-            self?.networking()
-        }
-        
-        collectionView.dragDownLoading = { [weak self] in
-            
-            self?.number = 10
-            self?.networking()
-        }
-        
-        /// 模拟向下拖动加载
-        collectionView.imitateDragDownloading()
     }
     
-    func networking() {
+    /// 网络结束
+    func loadEnd() {
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(3)) {
+        if page == 0 {
             
-            /// 停止加载
-            self.collectionView.endDragUpLoading()
-            self.collectionView.endDragDownLoading()
-            
-            /// 刷新数据
-            self.collectionView.reloadData()
+            /// 更新视图
+            updateUI()
+            /// 结束加载
+            topDragLoad.loadEnd(scrollView)
         }
+        else {
+            
+            /// 结束加载
+            bottomDragLoad.loadEnd(scrollView) { [weak self] bool in
+                
+                /// 加载动画完成，更新视图
+                self?.updateUI()
+            }
+        }
+        
+        /// 开启顶部加载
+        topDragLoad.isDragLoad = true
+        /// 开启底部部加载
+        bottomDragLoad.isDragLoad = true
     }
+    
+    /// 更新视图
+    func updateUI() {
+    
+    }
+    
 ```
