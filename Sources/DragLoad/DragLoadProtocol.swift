@@ -102,6 +102,16 @@ public protocol DragLoadProtocol: AnyObject {
      - parameter    completion:     动画完成
      */
     func loadEnd(_ scrollView: UIScrollView, duration: TimeInterval, completion: ((Bool)->Void)?)
+    
+    /**
+     模拟拖动加载
+     
+     - parameter    scrollView:     滑动视图
+     - parameter    animated:       偏移动画（`setContentOffset:animated:`）
+     - parameter    duration:       动画时间（`loading(_ scrollView:duration:completion:`）
+     - parameter    completion:     动画完成（`loading(_ scrollView:duration:completion:`）
+     */
+    func imitateDragLoading(_ scrollView: UIScrollView, animated: Bool, duration: TimeInterval, completion: ((Bool)->Void)?)
 }
 
 /**
@@ -373,5 +383,58 @@ public extension DragLoadProtocol where Self : UIView {
             self.dragLoadStatus = .normal
             completion?(bool)
         })
+    }
+    
+    /**
+     模拟拖动加载
+     
+     - parameter    scrollView:     滑动视图
+     - parameter    animated:       偏移动画（`setContentOffset:animated:`）
+     - parameter    duration:       动画时间（`loading(_ scrollView:duration:completion:`）
+     - parameter    completion:     动画完成（`loading(_ scrollView:duration:completion:`）
+     */
+    func imitateDragLoading(_ scrollView: UIScrollView, animated: Bool = true, duration: TimeInterval = DragLoad.animationDuration, completion: ((Bool)->Void)? = nil) {
+        
+        guard isDragLoad else { return }
+        guard dragLoadStatus == .normal else { return }
+        
+        var offset: CGPoint = .zero
+        
+        switch dragLoadDirection {
+            
+        case .up(let value):
+            
+            offset.y = max(scrollView.contentSize.height + dragLoadSafeArea(scrollView).top + dragLoadSafeArea(scrollView).bottom + value - scrollView.frame.height, value)
+            
+        case .down(let value):
+            
+            if scrollView.frame.height > scrollView.contentSize.height + dragLoadSafeArea(scrollView).top + dragLoadSafeArea(scrollView).bottom {
+                
+                offset.y = 0
+            }
+            else {
+                
+                offset.y = -value
+            }
+            
+        case .left(let value):
+            
+            offset.x = max(scrollView.contentSize.width + dragLoadSafeArea(scrollView).left + dragLoadSafeArea(scrollView).right + value - scrollView.frame.width, value)
+            
+        case .right(let value):
+            
+            if scrollView.frame.width > scrollView.contentSize.width + dragLoadSafeArea(scrollView).left + dragLoadSafeArea(scrollView).left {
+                
+                offset.x = 0
+            }
+            else {
+                
+                offset.x = -value
+            }
+        }
+        
+        scrollView.setContentOffset(offset, animated: animated)
+        
+        loading(scrollView, duration: duration, completion: completion)
     }
 }
