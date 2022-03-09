@@ -69,8 +69,6 @@ open class DragLoadTitleView: DragLoadView {
      */
     open func initial() {
         
-        backgroundColor = UIColor.red
-        
         title.textAlignment = .center
         title.font = UIFont.systemFont(ofSize: 14)
         title.textColor = UIColor.lightGray
