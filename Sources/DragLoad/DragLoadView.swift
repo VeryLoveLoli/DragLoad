@@ -39,21 +39,9 @@ open class DragLoadView: UIView, DragLoadProtocol {
         
         didSet {
             
-            if isDragLoad {
+            if isDragLoad != oldValue {
                 
-                isHidden = false
-                
-                if let scrollView = superview as? UIScrollView {
-                    
-                    kvo(scrollView)
-                }
-            }
-            else {
-                
-                sizeKVO = nil
-                offsetKVO = nil
-                
-                isHidden = true
+                updateDragLoadSetting(isDragLoad)
             }
         }
     }
@@ -82,8 +70,11 @@ open class DragLoadView: UIView, DragLoadProtocol {
         if let scrollView = superview as? UIScrollView {
             
             layoutConstraint(scrollView)
+            updateDragLoadSetting(isDragLoad)
         }
-        
-        isDragLoad = true
+        else {
+            
+            updateDragLoadSetting(false)
+        }
     }
 }

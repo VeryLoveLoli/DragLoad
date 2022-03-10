@@ -41,6 +41,13 @@ public protocol DragLoadProtocol: AnyObject {
     var dragLoadCallback: (()->Void)?  { get set }
     
     /**
+     更新拖动设置
+     
+     - parameter    isDragLoad:     是否可拖动加载
+     */
+    func updateDragLoadSetting(_ isDragLoad: Bool)
+    
+    /**
      拖动安全区域
      
      - parameter    scrollView:     滑动视图
@@ -118,6 +125,30 @@ public protocol DragLoadProtocol: AnyObject {
  拖动加载协议实现
  */
 public extension DragLoadProtocol where Self : UIView {
+    
+    /**
+     更新拖动设置
+     
+     - parameter    isDragLoad:     是否可拖动加载
+     */
+    func updateDragLoadSetting(_ isDragLoad: Bool) {
+        
+        isHidden = !isDragLoad
+        
+        if isDragLoad {
+            
+            if let scrollView = superview as? UIScrollView {
+                
+                kvo(scrollView)
+            }
+        }
+        else {
+            
+            sizeKVO = nil
+            offsetKVO = nil
+            safeAreaKVO = nil
+        }
+    }
     
     /**
      拖动安全区域
