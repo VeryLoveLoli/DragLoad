@@ -51,17 +51,26 @@ open class DragLoadTitleView: DragLoadView {
     // MARK: - init
     
     public override init(frame: CGRect) {
-        
         super.init(frame: frame)
         
         initial()
     }
     
     public required init?(coder aDecoder: NSCoder) {
-        
         super.init(coder: aDecoder)
         
         initial()
+    }
+    
+    /**
+     初始化
+     
+     - parameter    dragLoadDirection:  拖动方向
+     */
+    public convenience init(_ dragLoadDirection: DragLoad.Direction) {
+        self.init()
+        
+        self.dragLoadDirection = dragLoadDirection
     }
     
     /**
