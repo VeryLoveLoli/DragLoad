@@ -119,6 +119,23 @@ public protocol DragLoadProtocol: AnyObject {
      - parameter    completion:     动画完成（`loading(_ scrollView:duration:completion:`）
      */
     func imitateDragLoading(_ scrollView: UIScrollView, animated: Bool, duration: TimeInterval, completion: ((Bool)->Void)?)
+    
+    /**
+     加载结束
+     
+     - parameter    duration:       动画时间
+     - parameter    completion:     动画完成
+     */
+    func loadEnd(_ duration: TimeInterval, completion: ((Bool)->Void)?)
+    
+    /**
+     模拟拖动加载
+     
+     - parameter    animated:       偏移动画（`setContentOffset:animated:`）
+     - parameter    duration:       动画时间（`loading(_ scrollView:duration:completion:`）
+     - parameter    completion:     动画完成（`loading(_ scrollView:duration:completion:`）
+     */
+    func imitateDragLoading(_ animated: Bool, duration: TimeInterval, completion: ((Bool)->Void)?)
 }
 
 /**
@@ -467,5 +484,32 @@ public extension DragLoadProtocol where Self : UIView {
         scrollView.setContentOffset(offset, animated: animated)
         
         loading(scrollView, duration: duration, completion: completion)
+    }
+    
+    /**
+     加载结束
+     
+     - parameter    duration:       动画时间
+     - parameter    completion:     动画完成
+     */
+    func loadEnd(_ duration: TimeInterval = DragLoad.animationDuration, completion: ((Bool)->Void)? = nil) {
+        
+        guard let scrollView = superview as? UIScrollView else { return }
+        
+        loadEnd(scrollView, duration: duration, completion: completion)
+    }
+    
+    /**
+     模拟拖动加载
+     
+     - parameter    animated:       偏移动画（`setContentOffset:animated:`）
+     - parameter    duration:       动画时间（`loading(_ scrollView:duration:completion:`）
+     - parameter    completion:     动画完成（`loading(_ scrollView:duration:completion:`）
+     */
+    func imitateDragLoading(_ animated: Bool = true, duration: TimeInterval = DragLoad.animationDuration, completion: ((Bool)->Void)? = nil) {
+        
+        guard let scrollView = superview as? UIScrollView else { return }
+        
+        imitateDragLoading(scrollView, animated: animated, duration: duration, completion: completion)
     }
 }
